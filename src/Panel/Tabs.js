@@ -1,9 +1,7 @@
 import ESelect from '../ESelect'
 
 class Tabs extends ESelect {
-  get template () {
-    return `<div on-tab-click="{tabClick}"></div>`
-  }
+  get tagName () { return 'div' }
 
   get styleSheet () {
     return `:scope {
@@ -15,28 +13,26 @@ class Tabs extends ESelect {
     }`
   }
 
-  ready () {
-    this.$subscribe('category-change', arr => {
-      this.innerHTML = ''
-      arr[0].selected = true
-      this._refs = Tab.from(arr).to(this)
-    })
-
-    this.$subscribe('type-change', name => {
-      this._refs.forEach(tab => {
-        tab.selected = tab.name === name
-      })
+  setTypes (types) {
+    this.innerHTML = ''
+    this._refs = []
+    types.forEach(name => {
+      const tab = new Tab({ name, $parent: this }).to(this)
+      tab.element.addEventListener('click', () => { this.$root.setType(name) })
+      this._refs.push(tab)
     })
   }
 
-  tabClick ({ detail }) {
-    this.$dispatch('type-change', detail)
+  setType (type) {
+    this._refs.forEach(tab => {
+      tab.selected = tab.name === type
+    })
   }
 }
 
 class Tab extends ESelect {
   get template () {
-    return `<div on-click="{click}">{name}</div>`
+    return `<div>{name}</div>`
   }
 
   get styleSheet () {
@@ -63,15 +59,6 @@ class Tab extends ESelect {
 
   set selected (b) {
     this.element.className = b ? 'selected' : ''
-  }
-
-  click () {
-    if (!this.selected) {
-      this.element.dispatchEvent(new CustomEvent('tab-click', {
-        bubbles: true,
-        detail: this.name
-      }))
-    }
   }
 }
 

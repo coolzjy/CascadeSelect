@@ -26,30 +26,26 @@ class Panel extends ESelect {
     }`
   }
 
-  ready () {
-    this.$subscribe('type-change', type => {
-      this.currentType = type
-      this._tagsRef.forEach(tags => {
-        tags.element.style.display = tags.type.name === type ? 'block' : 'none'
-      })
+  setType (type) {
+    this.type = type
+    this._refs.forEach(tags => {
+      tags.element.style.display = tags.type === type ? 'block' : 'none'
     })
+    this.$tabs.setType(type)
+  }
 
-    this.$subscribe('category-change', arr => {
-      this.currentType = arr[0].name
-      const data = arr.map(d => {
-        return {
-          type: d,
-          $parent: this
-        }
-      })
-
-      this._tagsRef = Tags.from(data).to(this.box)
+  setTypes (types) {
+    const data = types.map(type => {
+      type
+      $parent: this
     })
+    this._refs = Tags.from(data).to(this.box)
+    this.$tabs.setTypes(types)
   }
 
   addTag (data) {
     this._tagsRef.forEach(tags => {
-      if (tags.type.name === this.currentType) {
+      if (tags.type === this.type) {
         tags.add(data)
       }
     })

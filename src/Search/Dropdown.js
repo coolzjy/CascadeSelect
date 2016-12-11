@@ -6,7 +6,7 @@ class Dropdown extends ESelect {
 
   get template () {
     return `
-    <div on-click="{click}">
+    <div>
       <jkl-label $ref text="{text}"></jkl-label>
       <jkl-list $ref data="{data}" show="{show}"></jkl-list>
     </div>
@@ -57,32 +57,11 @@ class Dropdown extends ESelect {
     }`
   }
 
-  ready () {
-    this.$subscribe('category-change', data => {
-      this.data = data
-      this.text = data[0].name
-    })
-
-    this.$subscribe('background-click', data => {
-      this.show = false
-    })
-
-    this.$subscribe('type-change', name => { this.$label.text = name })
-  }
-
-  click (e) {
-    this.show = !this.show
-
-    if (e.target.tagName === 'LI' && this.text !== e.target.innerText) {
-      this.text = e.target.innerText
-      this.$dispatch('type-change', this.text)
-    } else {
+  init () {
+    this.$label.element.addEventListener('click', e => {
+      this.show = !this.show
       e.stopPropagation()
-    }
-  }
-
-  select (name) {
-    this.text = name
+    })
   }
 }
 
@@ -96,8 +75,14 @@ class List extends ESelect {
   get tagName () { return 'ul' }
 
   set data (data) {
+    this.element.innerHTML = ''
     if (Array.isArray(data)) {
-      Item.from(data).to(this)
+      data.forEach(name => {
+        const item = new Item({ name }).to(this)
+        item.element.addEventListener('click', () => {
+          this.$root.setType(name)
+        })
+      })
     }
   }
 
@@ -108,9 +93,7 @@ class List extends ESelect {
 
 class Item extends ESelect {
   get template () {
-    return `
-    <li>{name}</li>
-    `
+    return `<li>{name}</li>`
   }
 }
 

@@ -26,14 +26,15 @@ class Search extends ESelect {
     }`
   }
 
-  get currentType () { return this.$parent.currentType }
-  set currentType (name) { this.$parent.currentType = name }
+  get model () { return this._model[this.type] }
+  set model (v) { this._model[this.type] = v }
 
-  get model () { return this._model[this.currentType] }
-  set model (v) { this._model[this.currentType] = v }
+  get flat () { return this._flat[this.type] }
+  set flat (v) { this._flat[this.type] = v }
 
-  get flat () { return this._flat[this.currentType] }
-  set flat (v) { this._flat[this.currentType] = v }
+  init () {
+    this.$selects = new Selects({ $parent: this }).to(document.body)
+  }
 
   setData (data) {
     // TODO: init $selects status
@@ -56,11 +57,18 @@ class Search extends ESelect {
     })
   }
 
+  setTypes (data) {
+    this.$dropdown.data = data
+    this.$dropdown.text = data[0]
+  }
+
+  setType (type) {
+    this.type = type
+    this.$dropdown.text = type
+  }
+
   inputClick (e) {
     e.stopPropagation()
-    if (!this.$selects) {
-      this.$selects = new Selects({ $parent: this }).to(document.body)
-    }
 
     const { top, left, height } = this.$input.element.getBoundingClientRect()
     const position = {
@@ -95,6 +103,11 @@ class Search extends ESelect {
     // TODO: debounce
     const data = this.flat.filter(d => d.n.indexOf(target.value) >= 0)
     this.$selects.set(0, data)
+  }
+
+  backgroundClick () {
+    this.$selects.removeBy(0)
+    this.$dropdown.show = false
   }
 }
 

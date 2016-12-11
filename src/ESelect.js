@@ -16,25 +16,12 @@ Jinkela.register('$ref', function(that, node, ownerElement) {
 const prefix = 'ES-'
 
 class ESelect extends Jinkela {
-  constructor (...arg) {
-    super(...arg)
-    setTimeout(this.ready && this.ready.bind(this), 0)
-  }
-
   get $root () {
     let ref = this
     while(ref['$parent']) {
       ref = ref['$parent']
     }
     return ref
-  }
-
-  $dispatch (action, detail) {
-    this.$root.element.dispatchEvent(new CustomEvent(prefix + action, { detail }))
-  }
-
-  $subscribe (action, callback) {
-    this.$root.element.addEventListener(prefix + action, e => { callback(e.detail) })
   }
 }
 

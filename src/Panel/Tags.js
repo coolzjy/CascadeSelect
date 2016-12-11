@@ -27,9 +27,9 @@ class Tags extends ESelect {
 
   add (data) {
     data.tag = new Tag({ name: data.n }).to(this)
-    data.tag.element.addEventListener('click', () => {
-      this.$dispatch('item-remove', data)
-    })
+    // data.tag.element.addEventListener('click', () => {
+    //   this.$dispatch('item-remove', data)
+    // })
   }
 }
 

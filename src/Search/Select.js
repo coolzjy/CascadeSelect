@@ -70,38 +70,56 @@ class Select extends ESelect {
   }
 
   renderData (data) {
-    data.forEach(d => {
-      let node = new Item({ title: d.title, name: d.n, selected: d.selected }).to(this)
+    Item.from(data.map(d => {
+      d.index = this.index
+      return {
+        title: d.title,
+        name: d.n,
+        selected: d.selected,
+        _data: d
+      }
+    })).to(this)
+    // data.forEach(d => {
+    //   let node = new Item({ title: d.title, name: d.n, selected: d.selected }).to(this)
 
-      node.element.addEventListener('click', e => {
-        e.stopPropagation()
-        d.node = node.element
-        this.$dispatch(
-          d.selected ? 'item-remove' : 'item-select',
-          d
-        )
-      })
+      // node.element.addEventListener('click', e => {
+      //   e.stopPropagation()
+      //   d.node = node.element
+      //   this.$dispatch(
+      //     d.selected ? 'item-remove' : 'item-select',
+      //     d
+      //   )
+      // })
 
-      node.element.addEventListener('mouseenter', e => {
-        d.index = this.index
-        this.$parent.$parent.itemHover({ target: node.element, detail: d })
-      })
-    })
+      // node.element.addEventListener('mouseenter', e => {
+      //   d.index = this.index
+      //   this.$parent.$parent.itemHover({ target: node.element, detail: d })
+      // })
+    // })
   }
 }
 
 class Item extends ESelect {
   get template () {
     return `
-    <li>
+    <li on-click="{click}" on-mouseenter="{mouseenter}">
       <span>{title}</span><strong>{name}</strong>
     </li>`
   }
 
-  init () {
-    if (this.selected) {
-      this.element.classList.add('selected')
-    }
+  set selected (b) {
+    this.element.className = b ? 'selected' : ''
+  }
+
+  click () {
+
+  }
+
+  mouseenter () {
+    this.element.dispatchEvent(new CustomEvent('item-hover', {
+      bubbles: true,
+      detail: this._data
+    }))
   }
 }
 

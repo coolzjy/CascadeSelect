@@ -55,14 +55,14 @@ class Selects extends ESelect {
   init () {
     this._refs = []
 
-    this.$subscribe('background-click', () => {
-      this.removeBy(0)
-    })
-
     this.element.addEventListener('item-click', e => {
       e.detail.node = e.target
       const action = e.target.classList.contains('selected') ? 'item-remove' : 'item-select'
       this.$dispatch(action, e.detail)
+    })
+
+    this.element.addEventListener('item-hover', e => {
+      this.$parent.itemHover(e)
     })
   }
 

@@ -1,42 +1,56 @@
-import ESelect from '../ESelect'
+import Jinkela from 'jinkela'
 
-class Tags extends ESelect {
-  get Tag () { return Tag }
+class Tags extends Jinkela {
   get tagName () { return 'ul' }
-
+  
   get styleSheet () {
     return `:scope {
-      list-style: none;
-      margin: 0;
-      padding: 3px 0 0 0;
-      line-height: 18px;
+      border-top: 1px solid #ddd;
       text-align: left;
-      min-height: 24px;
+      max-height: 80px;
+      overflow-y: auto;
       > li {
         display: inline-block;
-        margin: 0 0 3px 3px;
-        padding: 0 8px;
-        cursor: pointer;
-        height: 18px;
+        height: 20px;
+        background: #eee;
+        padding: 0 10px;
+        margin: 3px;
+        background-color: #19d4ae;
         border-radius: 2px;
-        background: #19d4ae;
         color: #fff;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+        transition: all 0.2s ease-out;
+        &:hover {
+          background-color: #19d4ae;
+          box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+        }
       }
     }`
   }
 
-  add (data) {
-    data.tag = new Tag({ name: data.n }).to(this)
-    // data.tag.element.addEventListener('click', () => {
-    //   this.$dispatch('item-remove', data)
-    // })
+  set data (data) {
+    if (data) {
+      this.element.innerHTML = ''
+      Tag.from(data).to(this)
+    }
   }
 }
 
-class Tag extends ESelect {
+class Tag extends Jinkela {
   get template () {
-    return `<li on-click="{click}">{name}</li>`
+    return `<li on-click="{click}">{n}</li>`
+  }
+
+  click () {
+    this.element.dispatchEvent(new CustomEvent('item-remove', {
+      bubbles: true,
+      detail: {
+        n: this.n,
+        i: this.i,
+        level: this.level
+      }
+    }))
   }
 }
 
-export default Tags
+module.exports = Tags

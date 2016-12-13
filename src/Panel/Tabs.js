@@ -1,65 +1,59 @@
-import ESelect from '../ESelect'
+import Jinkela from 'jinkela'
 
-class Tabs extends ESelect {
-  get tagName () { return 'div' }
+class Tabs extends Jinkela {
+  get tagName () { return 'ul' }
 
   get styleSheet () {
     return `:scope {
       display: flex;
-      position: relative;
-      top: 1px;
-      cursor: default;
-      user-select: none;
-    }`
-  }
-
-  setTypes (types) {
-    this.innerHTML = ''
-    this._refs = []
-    types.forEach(name => {
-      const tab = new Tab({ name, $parent: this }).to(this)
-      tab.element.addEventListener('click', () => { this.$root.setType(name) })
-      this._refs.push(tab)
-    })
-  }
-
-  setType (type) {
-    this._refs.forEach(tab => {
-      tab.selected = tab.name === type
-    })
-  }
-}
-
-class Tab extends ESelect {
-  get template () {
-    return `<div>{name}</div>`
-  }
-
-  get styleSheet () {
-    return `:scope {
-      padding: 0 15px;
-      height: 20px;
-      line-height: 20px;
-      border: 1px solid #ddd;
-      border-right: none;
-      color: #999;
-      &:last-child {
+      flex: 1;
+      > li {
+        padding: 0 10px;
         border-right: 1px solid #ddd;
-      }
-      &.selected, &:hover.selected {
-        border-bottom-color: #f8f8f8;
-        background: #f8f8f8;
-        color: #333;
-      }
-      &:hover {
-        color: #333;
+        > i {
+          font-style: normal;
+          display: inline-block;
+          margin-left: 5px;
+          background: #999;
+          width: 16px;
+          height: 16px;
+          vertical-align: middle;
+          color: #fff;
+          border-radius: 50%;
+          line-height: 18px;
+        }
       }
     }`
   }
 
-  set selected (b) {
-    this.element.className = b ? 'selected' : ''
+  get types () { return this._types }
+  set types (types = []) {
+    this._types = types
+    this.render()
+  }
+
+  render () {
+    this.element.innerHTML = ''
+    Tab.from(this.types).to(this)
   }
 }
 
-export default Tabs
+class Tab extends Jinkela {
+  get template () {
+    return `<li on-click="{click}"><span>{name}</span><i>{count}</i></li>`
+  }
+
+  init () {
+    this.element.className = this.selected ? 'selected' : ''
+    this.element.style.visibility = this.count ? 'visible' : 'hidden'
+  }
+
+  click () {
+    this.element.dispatchEvent(new CustomEvent('type-change', {
+      bubbles: true,
+      detail: this.name
+    }))
+  }
+}
+
+module.exports = Tabs

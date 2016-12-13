@@ -13,9 +13,7 @@
   <div id="app"></div>
   <script src="test/seed.js"></script>
   <script>
-    var el = document.getElementById('app')
-    var opt = {
-      data: [
+    var data = [
         {
           name: '交易平台BU',
           data: seed[0],
@@ -27,9 +25,8 @@
           struct: seed[1].struct
         }
       ]
-    }
 
-    var app = window.ESelect.init(el, opt)
+    new ESelect({ data }).to(document.getElementById('app'))
   </script>
 </body>
 </html>

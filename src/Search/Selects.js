@@ -1,93 +1,200 @@
-import ESelect from '../ESelect'
-import Select from './Select'
+import Jinkela from 'jinkela'
 
-class Selects extends ESelect {
+class Selects extends Jinkela {
   get tagName () { return 'div' }
 
   get styleSheet () {
     return `:scope {
-      cursor: default;
-      user-select: none;
-      * {
-        box-sizing: border-box;
-      }
-      > ul {
+      background: #fff;
+      ul {
         position: absolute;
-        z-index: 999;
-        background: #fff;
-        list-style: none;
-        line-height: 26px;
-        text-align: center;
         border: 1px solid #ddd;
-        border-top: none;
         max-height: 390px;
         overflow: auto;
-        margin: 0;
-        padding: 0;
-        font-size: 12px;
-        color: #666;
-      }
-      li {
-        display: flex;
-        height: 26px;
-        border-top: 1px solid #ddd;
-        transition: background .1s;
-        &:hover {
-          background: #f1f1f1;
+        background: #fff;
+        border-top: none;
+        > li {
+          border-top: 1px solid #ddd;
+          height: 26px;
+          display: flex;
+          > span {
+            color: #999;
+            padding: 0 5px;
+            background: #f8f8f8;
+            border-right: 1px solid #eee;
+          }
+          > strong {
+            flex: 1;
+            padding: 0 15px;
+          }
         }
-        &.selected {
-          color: #19d4ae;
-        }
-      }
-      span {
-        padding: 0 10px;
-        background: #f8f8f8;
-        color: #aaa;
-        border-right: 1px solid #ddd;
-      }
-      strong {
-        flex: 1;
-        padding: 0 15px;
       }
     }`
   }
 
   init () {
-    this._refs = []
-
-    this.element.addEventListener('item-click', e => {
-      e.detail.node = e.target
-      const action = e.target.classList.contains('selected') ? 'item-remove' : 'item-select'
-      this.$dispatch(action, e.detail)
+    this.element.addEventListener('item-enter', e => {
+      const { index, level, i } = e.detail
+      const position = e.target.getBoundingClientRect()
+      const data = this.getModel(level + 1, i)
+      if (!data) {
+        if (index === 0) {
+          this.remove(1)
+        }
+        return
+      }
+      this.show({
+        index: index + 1,
+        data,
+        position: {
+          top: position.top + window.pageYOffset + 'px',
+          left: position.width + position.left + window.pageXOffset + 'px'
+        }
+      })
     })
-
-    this.element.addEventListener('item-hover', e => {
-      this.$parent.itemHover(e)
-    })
   }
 
-  set (index, data) {
-    this.removeBy(index + 1)
-    this._refs[index].render(data)
-  }
-
-  show ({ index, data, position }) {
-    this.removeBy(index)
-    this._refs[index] = new Select({ index, data, position, $parent: this }).to(this)
-  }
-
-  remove (index) {
-    if (this._refs[index]) {
-      this.element.removeChild(this._refs[index].element)
-      this._refs[index] = null
+  set visible (b) {
+    if (!this._ref) { this._ref = [] }
+    if (b) {
+      this.showDefault()
+    } else {
+      this.remove()
     }
   }
 
-  removeBy (index) {
-    for (let i = index; i < this._refs.length; i++) {
-      this.remove(i)
+  get keyword () { return this._keyword }
+  set keyword (k) {
+    if (k === this._keyword) { return }
+    this._keyword = k
+    this.showDefault()
+  }
+
+  getModel (level, id) {
+    if (level === 0) {
+      if (this.keyword) {
+        return this.flat.filter(item => item.n.indexOf(this.keyword) >= 0)
+      }
+      return this.flat
+    }
+    return this.data[level] && this.data[level][id]
+  }
+
+  showDefault () {
+    if (!this.data || !this.flat) { return }
+    this.remove(0)
+    this._ref[0] = new Select({ data: this.getModel(0), index: 0, selected: this.selected }).to(this)
+  }
+
+  show ({ index, data, position }) {
+    this.remove(index)
+    this._ref[index] = new Select({ data, index, position, selected: this.selected }).to(this)
+  }
+
+  remove (index) {
+    if (!index) {
+      this.element.innerHTML = ''
+      this._ref = []
+    } else {
+      for (let i = index; i < this.data.struct.length; i++) {
+        if (this._ref[i]) {
+          this._ref[i].element.remove()
+          delete this._ref[i]
+        }
+      }
     }
   }
 }
 
-export default Selects
+const PAGE_SIZE = 200
+
+class Select extends Jinkela {
+  get tagName () { return 'ul' }
+
+  init () {
+    this.element.addEventListener('item-enter', e => {
+      e.detail.index = this.index
+    })
+
+    this.page = 0
+
+    if (this.data.length > PAGE_SIZE) {
+      this.element.addEventListener('scroll', this.scroll.bind(this))
+      this.max = Math.ceil(this.data.length / PAGE_SIZE)
+    }
+
+    this.render(this.getPage(0))
+  }
+
+  set position (pos) {
+    Object.assign(this.element.style, pos)
+  }
+
+  scroll () {
+    if (!this.scrollHeight || !this.offsetHeight) {
+      this.scrollHeight = this.element.scrollHeight
+      this.offsetHeight = this.element.offsetHeight
+    }
+    if (this.element.scrollTop + this.offsetHeight * 2 > this.scrollHeight) {
+      this.nextPage()
+    }
+  }
+
+  nextPage () {
+    if (this.page >= this.max - 1) { return }
+    this.render(this.getPage(++this.page))
+    setTimeout(() => { this.scrollHeight = this.element.scrollHeight }, 0)
+  }
+
+  getPage (index) {
+    return this.data.slice(index * PAGE_SIZE, index * PAGE_SIZE + PAGE_SIZE)
+  }
+
+  render (data) {
+    if (data) {
+      data.forEach(d => {
+        d.selected = this.selected && this.selected.some(s => s.i === d.i && s.level === d.level)
+        new Item(d).to(this)
+      })
+    }
+  }
+}
+
+class Item extends Jinkela {
+  get template () {
+    return `<li on-click="{click}" on-mouseenter="{mouseenter}"><span>{title}</span><strong>{n}</strong></li>`
+  }
+
+  set selected (b) {
+    this.element.className = b ? 'selected' : '' 
+  }
+
+  _dispatch (action) {
+    this.element.dispatchEvent(new CustomEvent(action, {
+      bubbles: true,
+      detail: {
+        n: this.n,
+        i: this.i,
+        level: this.level
+      }
+    }))
+  }
+
+  mouseenter () {
+    this._dispatch('item-enter')
+  }
+
+  click (e) {
+    e.stopPropagation()
+    const { classList } = this.element
+    if (classList.contains('selected')) {
+      classList.remove('selected')
+      this._dispatch('item-remove')
+    } else {
+      classList.add('selected')
+      this._dispatch('item-select')
+    }
+  }
+}
+
+module.exports = Selects

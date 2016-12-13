@@ -973,8 +973,10 @@ class Item extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
     return `<li on-click="{click}" on-mouseenter="{mouseenter}"><span>{title}</span><strong>{n}</strong></li>`
   }
 
-  set selected (b) {
-    this.element.className = b ? 'selected' : '' 
+  init () {
+    const { classList } = this.element
+    if (this.hasChild) { classList.add('has-child') }
+    if (this.selected) { classList.add('selected') }
   }
 
   _dispatch (action) {
@@ -1067,6 +1069,14 @@ class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
       .selected {
         color: #19d4ae;
       }
+      .has-child:after {
+        content: ">";
+        margin-right: 5px;
+        color: #aaa;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
     }`
   }
 
@@ -1088,6 +1098,7 @@ class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
           raw.data[level][id].forEach(item => {
             item.level = level
             item.title = title
+            item.hasChild = raw.data[level + 1] && raw.data[level + 1][item.i]
             raw.flat.push(item)
           })
         }

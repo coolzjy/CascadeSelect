@@ -165,8 +165,10 @@ class Item extends Jinkela {
     return `<li on-click="{click}" on-mouseenter="{mouseenter}"><span>{title}</span><strong>{n}</strong></li>`
   }
 
-  set selected (b) {
-    this.element.className = b ? 'selected' : '' 
+  init () {
+    const { classList } = this.element
+    if (this.hasChild) { classList.add('has-child') }
+    if (this.selected) { classList.add('selected') }
   }
 
   _dispatch (action) {

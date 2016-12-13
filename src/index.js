@@ -51,6 +51,14 @@ class Component extends Jinkela {
       .selected {
         color: #19d4ae;
       }
+      .has-child:after {
+        content: ">";
+        margin-right: 5px;
+        color: #aaa;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
     }`
   }
 
@@ -72,6 +80,7 @@ class Component extends Jinkela {
           raw.data[level][id].forEach(item => {
             item.level = level
             item.title = title
+            item.hasChild = raw.data[level + 1] && raw.data[level + 1][item.i]
             raw.flat.push(item)
           })
         }

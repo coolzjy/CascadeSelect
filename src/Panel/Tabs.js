@@ -45,7 +45,7 @@ class Tab extends Jinkela {
 
   init () {
     this.element.className = this.selected ? 'selected' : ''
-    this.element.style.visibility = this.count ? 'visible' : 'hidden'
+    this.element.style.display = this.count ? 'block' : 'none'
   }
 
   click () {

@@ -110,9 +110,7 @@ class Component extends Jinkela {
   init () {
     this.selected = []
 
-    document.body.addEventListener('click', () => {
-      this.modal = false
-    })
+    document.body.addEventListener('click', () => { this.modal = false })
 
     this.element.addEventListener('type-change', this.typeChange.bind(this))
     this.element.addEventListener('item-select', this.addSelect.bind(this))

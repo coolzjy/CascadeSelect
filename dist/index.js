@@ -71,7 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -90,7 +90,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /**/   });
 /**/
 /**/   // AMD, wrap a 'String' to avoid warn of fucking webpack
-/**/   if (String("function") === 'function' && !!__webpack_require__(2)) return scope(__webpack_require__(1));
+/**/   if (String("function") === 'function' && !!__webpack_require__(5)) return scope(__webpack_require__(4));
 /**/
 /**/   // Global
 /**/   scope(function(name, dependencies, factory) {
@@ -465,18 +465,144 @@ Jinkela.register('ref', function(that, node, ownerElement) {
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-module.exports = function() { throw new Error("define cannot be used indirect"); };
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
+
+class Dropdown extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get template () {
+    return `
+    <div>
+      <div>{current}</div>
+      <ul ref="$list"></ul>
+    </div>
+    `
+  }
+
+  get styleSheet () {
+    return `:scope {
+      position: relative;
+      user-select: none;
+      cursor: default;
+      > div {
+        min-width: 100px;
+        border-right: 1px solid #eee;
+        background: #f8f8f8;
+      }
+      &:hover > ul {
+        visibility: visible;
+        transform: scaleY(1);
+      }
+      > ul {
+        visibility: hidden;
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: all .1s ease .1s;
+        position: absolute;
+        left: -1px;
+        top: 25px;
+        width: 100%;
+        border-left: 1px solid #ddd;
+        box-sizing: content-box;
+        li {
+          border-bottom: 1px solid #ddd;
+          border-right: 1px solid #ddd;
+        }
+      }
+    }`
+  }
+
+  set types (types) {
+    if (Array.isArray(types)) {
+      types.forEach(name => {
+        new Item({ name }).to(this.$list)
+      })
+    }
+  }
+}
+
+class Item extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get template () {
+    return `<li on-click="{click}">{name}</li>`
+  }
+
+  click () {
+    this.element.dispatchEvent(new CustomEvent('type-change', {
+      bubbles: true,
+      detail: this.name
+    }))
+  }
+}
+
+module.exports = Dropdown
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Tabs__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Tabs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__Tabs__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Tags__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Tags___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__Tags__);
 
-/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+
+
+class Panel extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get Tabs () { return __WEBPACK_IMPORTED_MODULE_1__Tabs___default.a }
+  get Tags () { return __WEBPACK_IMPORTED_MODULE_2__Tags___default.a }
+
+  get template () {
+    return `
+    <div>
+      <div>
+        <jkl-tabs types="{_types}"></jkl-tabs>
+        <div jinkela-clear on-click="{clear}">清除全部</div>
+      </div>
+      <jkl-tags data="{_tags}"></jkl-tags>
+    </div>`
+  }
+
+  get styleSheet () {
+    return `:scope {
+      border: 1px solid #ddd;
+      visibility: hidden;
+      > div {
+        display: flex;
+        [jinkela-clear] {
+          cursor: pointer;
+          width: 80px;
+        }
+      }
+    }`
+  }
+
+  set tags (tags) {
+    if (tags) {
+      this._tags = tags
+      this._types = this.types.map(name => {
+        return {
+          name,
+          selected: name === this.current,
+          count: this.selected.filter(s => s.type === name).length
+        }
+      })
+      this.element.style.visibility = this.selected && this.selected.length ? 'visible' : 'hidden'
+    }
+  }
+
+  clear () {
+    this.element.dispatchEvent(new CustomEvent('item-clear', { bubbles: true }))
+  }
+}
+
+module.exports = Panel
 
 /***/ },
 /* 3 */
@@ -487,28 +613,560 @@ module.exports = function() { throw new Error("define cannot be used indirect");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
 
-class ESelect extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
-  constructor (...args) {
-    super(...args)
+class Search extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get Selects () { return __webpack_require__(8) }
 
-    // if (!element) {
-    //   throw new Error('element cannot be empty')
-    // }
-    //
-    // if (Array.isArray(option)) {
-    //   option = { data: option }
-    // }
-    //
-    // if (!option || !option.data) {
-    //   throw new Error('invalid options')
-    // }
+  get template () {
+    return `
+    <div>
+      <input type="search" on-input="{input}" on-click="{click}" />
+      <jkl-selects data="{_data}" flat="{_flat}" keyword="{keyword}" visible="{visible}" selected="{selected}"></jkl-selects>
+    </div>`
+  }
 
+  get styleSheet () {
+    return `:scope {
+      > input {
+        border: none;
+        outline: none;
+        padding: 0 5px;
+      } 
+    }`
+  }
 
+  input ({ target }) {
+    this.keyword = target.value.trim()
+  }
+
+  click (e) {
+    this.visible = true
+    e.stopPropagation()
+  }
+
+  set data (data) {
+    if (data) {
+      this._data = data.data
+      this._flat = data.flat
+    }
   }
 }
 
-/* harmony default export */ exports["default"] = ESelect;
+module.exports = Search
 
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
+
+
+class Tabs extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get tagName () { return 'ul' }
+
+  get styleSheet () {
+    return `:scope {
+      display: flex;
+      flex: 1;
+      > li {
+        padding: 0 10px;
+        border-right: 1px solid #ddd;
+        > i {
+          font-style: normal;
+          display: inline-block;
+          margin-left: 5px;
+          background: #999;
+          width: 16px;
+          height: 16px;
+          vertical-align: middle;
+          color: #fff;
+          border-radius: 50%;
+          line-height: 18px;
+        }
+      }
+    }`
+  }
+
+  get types () { return this._types }
+  set types (types = []) {
+    this._types = types
+    this.render()
+  }
+
+  render () {
+    this.element.innerHTML = ''
+    Tab.from(this.types).to(this)
+  }
+}
+
+class Tab extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get template () {
+    return `<li on-click="{click}"><span>{name}</span><i>{count}</i></li>`
+  }
+
+  init () {
+    this.element.className = this.selected ? 'selected' : ''
+    this.element.style.visibility = this.count ? 'visible' : 'hidden'
+  }
+
+  click () {
+    this.element.dispatchEvent(new CustomEvent('type-change', {
+      bubbles: true,
+      detail: this.name
+    }))
+  }
+}
+
+module.exports = Tabs
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
+
+
+class Tags extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get tagName () { return 'ul' }
+  
+  get styleSheet () {
+    return `:scope {
+      border-top: 1px solid #ddd;
+      text-align: left;
+      max-height: 80px;
+      overflow-y: auto;
+      > li {
+        display: inline-block;
+        height: 20px;
+        background: #eee;
+        padding: 0 10px;
+        margin: 3px;
+        background-color: #19d4ae;
+        border-radius: 2px;
+        color: #fff;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+        transition: all 0.2s ease-out;
+        &:hover {
+          background-color: #19d4ae;
+          box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+        }
+      }
+    }`
+  }
+
+  set data (data) {
+    if (data) {
+      this.element.innerHTML = ''
+      Tag.from(data).to(this)
+    }
+  }
+}
+
+class Tag extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get template () {
+    return `<li on-click="{click}">{n}</li>`
+  }
+
+  click () {
+    this.element.dispatchEvent(new CustomEvent('item-remove', {
+      bubbles: true,
+      detail: {
+        n: this.n,
+        i: this.i,
+        level: this.level
+      }
+    }))
+  }
+}
+
+module.exports = Tags
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
+
+
+class Selects extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get tagName () { return 'div' }
+
+  get styleSheet () {
+    return `:scope {
+      background: #fff;
+      ul {
+        position: absolute;
+        border: 1px solid #ddd;
+        max-height: 390px;
+        overflow: auto;
+        background: #fff;
+        border-top: none;
+        > li {
+          border-top: 1px solid #ddd;
+          height: 26px;
+          display: flex;
+          > span {
+            color: #999;
+            padding: 0 5px;
+            background: #f8f8f8;
+            border-right: 1px solid #eee;
+          }
+          > strong {
+            flex: 1;
+            padding: 0 15px;
+          }
+        }
+      }
+    }`
+  }
+
+  init () {
+    this.element.addEventListener('item-enter', e => {
+      const { index, level, i } = e.detail
+      const position = e.target.getBoundingClientRect()
+      const data = this.getModel(level + 1, i)
+      if (!data) {
+        if (index === 0) {
+          this.remove(1)
+        }
+        return
+      }
+      this.show({
+        index: index + 1,
+        data,
+        position: {
+          top: position.top + window.pageYOffset + 'px',
+          left: position.width + position.left + window.pageXOffset + 'px'
+        }
+      })
+    })
+  }
+
+  set visible (b) {
+    if (!this._ref) { this._ref = [] }
+    if (b) {
+      this.showDefault()
+    } else {
+      this.remove()
+    }
+  }
+
+  get keyword () { return this._keyword }
+  set keyword (k) {
+    if (k === this._keyword) { return }
+    this._keyword = k
+    this.showDefault()
+  }
+
+  getModel (level, id) {
+    if (level === 0) {
+      if (this.keyword) {
+        return this.flat.filter(item => item.n.indexOf(this.keyword) >= 0)
+      }
+      return this.flat
+    }
+    return this.data[level] && this.data[level][id]
+  }
+
+  showDefault () {
+    if (!this.data || !this.flat) { return }
+    this.remove(0)
+    this._ref[0] = new Select({ data: this.getModel(0), index: 0, selected: this.selected }).to(this)
+  }
+
+  show ({ index, data, position }) {
+    this.remove(index)
+    this._ref[index] = new Select({ data, index, position, selected: this.selected }).to(this)
+  }
+
+  remove (index) {
+    if (!index) {
+      this.element.innerHTML = ''
+      this._ref = []
+    } else {
+      for (let i = index; i < this.data.struct.length; i++) {
+        if (this._ref[i]) {
+          this._ref[i].element.remove()
+          delete this._ref[i]
+        }
+      }
+    }
+  }
+}
+
+const PAGE_SIZE = 200
+
+class Select extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get tagName () { return 'ul' }
+
+  init () {
+    this.element.addEventListener('item-enter', e => {
+      e.detail.index = this.index
+    })
+
+    this.page = 0
+
+    if (this.data.length > PAGE_SIZE) {
+      this.element.addEventListener('scroll', this.scroll.bind(this))
+      this.max = Math.ceil(this.data.length / PAGE_SIZE)
+    }
+
+    this.render(this.getPage(0))
+  }
+
+  set position (pos) {
+    Object.assign(this.element.style, pos)
+  }
+
+  scroll () {
+    if (!this.scrollHeight || !this.offsetHeight) {
+      this.scrollHeight = this.element.scrollHeight
+      this.offsetHeight = this.element.offsetHeight
+    }
+    if (this.element.scrollTop + this.offsetHeight * 2 > this.scrollHeight) {
+      this.nextPage()
+    }
+  }
+
+  nextPage () {
+    if (this.page >= this.max - 1) { return }
+    this.render(this.getPage(++this.page))
+    setTimeout(() => { this.scrollHeight = this.element.scrollHeight }, 0)
+  }
+
+  getPage (index) {
+    return this.data.slice(index * PAGE_SIZE, index * PAGE_SIZE + PAGE_SIZE)
+  }
+
+  render (data) {
+    if (data) {
+      data.forEach(d => {
+        d.selected = this.selected && this.selected.some(s => s.i === d.i && s.level === d.level)
+        new Item(d).to(this)
+      })
+    }
+  }
+}
+
+class Item extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  get template () {
+    return `<li on-click="{click}" on-mouseenter="{mouseenter}"><span>{title}</span><strong>{n}</strong></li>`
+  }
+
+  set selected (b) {
+    this.element.className = b ? 'selected' : '' 
+  }
+
+  _dispatch (action) {
+    this.element.dispatchEvent(new CustomEvent(action, {
+      bubbles: true,
+      detail: {
+        n: this.n,
+        i: this.i,
+        level: this.level
+      }
+    }))
+  }
+
+  mouseenter () {
+    this._dispatch('item-enter')
+  }
+
+  click (e) {
+    e.stopPropagation()
+    const { classList } = this.element
+    if (classList.contains('selected')) {
+      classList.remove('selected')
+      this._dispatch('item-remove')
+    } else {
+      classList.add('selected')
+      this._dispatch('item-select')
+    }
+  }
+}
+
+module.exports = Selects
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
+
+
+class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
+  // register components
+  get Dropdown () { return __webpack_require__(1) }
+  get Search () { return __webpack_require__(3) }
+  get Panel () { return __webpack_require__(2) }
+
+  get template () {
+    return `
+    <div>
+      <div jinkela-search>
+        <jkl-dropdown types="{_types}" current="{_currentType}"></jkl-dropdown>
+        <jkl-search data="{currentModel}" visible="{modal}" selected="{currentSelected}"></jkl-search>
+      </div>
+      <div jinkela-panel>
+        <jkl-panel types="{_types}" current="{_currentType}" tags="{currentSelected}" selected="{selected}"></jkl-panel>
+      </div>
+    </div>`
+  }
+
+  get styleSheet () {
+    return `:scope {
+      display: flex;
+      line-height: 24px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      * {
+        box-sizing: border-box;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        cursor: default;
+        user-select: none;
+      }
+      li:hover { background: #f8f8f8; }
+      li:active { background: #eee; }
+      [jinkela-search] {
+        display: flex;
+        border: 1px solid #ddd;
+        height: 26px;
+      }
+      [jinkela-panel] {
+        flex: 1;
+        padding-left: 15px;
+        line-height: 20px;
+      }
+      .selected {
+        color: #19d4ae;
+      }
+    }`
+  }
+
+  get data () { return this._data }
+  set data (data) {
+    if (typeof data !== 'object') {
+      throw new Error('invalid data')
+    }
+
+    if (!Array.isArray(data)) {
+      data = [data]
+    }
+
+    // prepare data
+    data.forEach(raw => {
+      raw.flat = []
+      raw.struct.forEach((title, level) => {
+        for (let id in raw.data[level]) {
+          raw.data[level][id].forEach(item => {
+            item.level = level
+            item.title = title
+            raw.flat.push(item)
+          })
+        }
+      })
+    })
+
+    this._data = data
+    this.types = data.map(d => d.name)
+  }
+
+  get types () { return this._types }
+  set types (types) {
+    this._types = types
+    this.currentType = types[0]
+  }
+
+  get currentType () { return this._currentType }
+  set currentType (type) {
+    this._currentType = type
+    this.data.forEach(d => {
+      if (d.name === type) {
+        this.currentModel = d
+      }
+    })
+  }
+
+  init () {
+    this.selected = []
+
+    document.body.addEventListener('click', () => {
+      this.modal = false
+    })
+
+    this.element.addEventListener('type-change', this.typeChange.bind(this))
+    this.element.addEventListener('item-select', this.addSelect.bind(this))
+    this.element.addEventListener('item-remove', this.removeSelect.bind(this))
+    this.element.addEventListener('item-clear', this.clearSelect.bind(this))
+  }
+
+  typeChange (e) {
+    this.currentType = e.detail
+    this.refreshCurrentSelected()
+  }
+
+  addSelect (e) {
+    const item = e.detail
+    item.type = this.currentType
+    if (!this.containsSelect(item)) {
+      this.selected.push(item)
+      this.refreshCurrentSelected()
+    }
+  }
+
+  removeSelect (e) {
+    const item = e.detail
+    item.type = this.currentType
+    this.selected = this.selected.filter(s => !isEqual(item, s))
+    this.refreshCurrentSelected()
+  }
+
+  clearSelect () {
+    this.selected = []
+    this.currentSelected = []
+  }
+
+  containsSelect (a) {
+    return this.selected.some(b => isEqual(a, b))
+  }
+
+  refreshCurrentSelected () {
+    this.currentSelected = this.selected.filter(s => s.type === this.currentType)
+  }
+}
+
+function isEqual (a, b) {
+  return a.i === b.i && a.type === b.type && a.level === b.level
+}
+
+module.exports = Component
 
 /***/ }
 /******/ ]);

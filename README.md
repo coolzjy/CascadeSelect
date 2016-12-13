@@ -2,7 +2,7 @@
 
 basic usage
 
-```
+```javascript
 const data = [/* todo */]
 
 const select = new CascadeSelect({ data }).to(document.body)

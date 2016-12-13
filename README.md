@@ -1,0 +1,13 @@
+# CascadeSelect
+
+basic usage
+
+```
+const data = [/* todo */]
+
+const select = new CascadeSelect({ data }).to(document.body)
+
+select.onChange = arr => { console.log(arr) }
+```
+
+TODO

@@ -4,7 +4,9 @@
   "description": "Cascading Select Component with ES6",
   "main": "src/index.js",
   "scripts": {
-    "build": "rm -rf lib && webpack --progress --color",
+    "prebuild": "rm -rf lib",
+    "build": "webpack --progress --color",
+    "postbuild": "babel 'lib/index.js' -o './lib/index.es5.js'",
     "dev": "webpack-dev-server --open --inline",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build",
@@ -13,11 +15,10 @@
   "author": "ppq1991@gmail.com",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
     "babel-loader": "^6.2.8",
-    "babel-preset-babili": "0.0.9",
     "babel-preset-es2015": "^6.18.0",
-    "babel-preset-stage-2": "^6.18.0",
     "html-webpack-plugin": "^2.24.1",
     "webpack": "^2.1.0-beta.27",
     "webpack-dev-server": "^2.1.0-beta.12"
@@ -31,6 +32,8 @@
     "description": "",
     "author_name": "彭佩乔",
     "author_email": "peiqiao.peng@ele.me",
-    "notice": ["peiqiao.peng@ele.me"]
+    "notice": [
+      "peiqiao.peng@ele.me"
+    ]
   }
 }

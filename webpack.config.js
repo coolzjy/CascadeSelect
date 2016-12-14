@@ -5,8 +5,8 @@ module.exports = {
   entry: './src/index.js',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist'),
-    library: 'ESelect',
+    path: path.resolve(__dirname, 'lib'),
+    library: 'CascadingSelect',
     libraryTarget: 'umd'
   },
   plugins: [new HtmlWebpackPlugin({

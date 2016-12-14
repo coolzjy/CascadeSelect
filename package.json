@@ -1,15 +1,16 @@
 {
-  "name": "eselect",
+  "name": "cascading-select",
   "version": "0.0.1",
-  "description": "",
+  "description": "Cascading Select Component with ES6",
   "main": "src/index.js",
   "scripts": {
-    "build": "cp -rf test dist && webpack --progress --color",
+    "build": "rm -rf lib && webpack --progress --color",
     "dev": "webpack-dev-server --open --inline",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run build"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "ppq1991@gmail.com",
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.18.2",
     "babel-loader": "^6.2.8",
@@ -25,7 +26,7 @@
   },
   "faas": {
     "domain": "dt",
-    "public": "dist",
+    "public": "dev",
     "description": "",
     "author_name": "彭佩乔",
     "author_email": "peiqiao.peng@ele.me",

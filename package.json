@@ -7,7 +7,8 @@
     "build": "rm -rf lib && webpack --progress --color",
     "dev": "webpack-dev-server --open --inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "postpublish": "rm -rf public && mkdir public && cp -rf lib/** mock public && faas testing"
   },
   "author": "ppq1991@gmail.com",
   "license": "MIT",
@@ -26,7 +27,7 @@
   },
   "faas": {
     "domain": "dt",
-    "public": "dev",
+    "public": "public",
     "description": "",
     "author_name": "彭佩乔",
     "author_email": "peiqiao.peng@ele.me",

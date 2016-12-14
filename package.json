@@ -26,6 +26,9 @@
   "dependencies": {
     "jinkela": "^1.2.18"
   },
+  "babel": {
+    "presets": ["es2015"]
+  },
   "faas": {
     "domain": "dt",
     "public": "public",

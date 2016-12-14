@@ -14,7 +14,7 @@ class Component extends Jinkela {
         <jkl-search data="{currentModel}" visible="{modal}" selected="{currentSelected}"></jkl-search>
       </div>
       <div jinkela-panel>
-        <jkl-panel types="{_types}" current="{_currentType}" tags="{currentSelected}" selected="{selected}"></jkl-panel>
+        <jkl-panel types="{_types}" current="{_currentType}" tags="{currentSelected}" selected="{selected}" modal="{modal}"></jkl-panel>
       </div>
     </div>`
   }
@@ -47,9 +47,6 @@ class Component extends Jinkela {
         flex: 1;
         padding-left: 15px;
         line-height: 20px;
-      }
-      .selected {
-        color: #19d4ae;
       }
       .has-child:after {
         content: ">";

@@ -722,7 +722,7 @@ class Tab extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
 
   init () {
     this.element.className = this.selected ? 'selected' : ''
-    this.element.style.visibility = this.count ? 'visible' : 'hidden'
+    this.element.style.display = this.count ? 'block' : 'none'
   }
 
   click () {
@@ -734,6 +734,7 @@ class Tab extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
 }
 
 module.exports = Tabs
+
 
 /***/ },
 /* 7 */
@@ -1128,9 +1129,7 @@ class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
   init () {
     this.selected = []
 
-    document.body.addEventListener('click', () => {
-      this.modal = false
-    })
+    document.body.addEventListener('click', () => { this.modal = false })
 
     this.element.addEventListener('type-change', this.typeChange.bind(this))
     this.element.addEventListener('item-select', this.addSelect.bind(this))
@@ -1178,6 +1177,7 @@ function isEqual (a, b) {
 }
 
 module.exports = Component
+
 
 /***/ }
 /******/ ]);

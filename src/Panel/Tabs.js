@@ -10,17 +10,13 @@ class Tabs extends Jinkela {
       > li {
         padding: 0 10px;
         border-right: 1px solid #ddd;
-        > i {
-          font-style: normal;
-          display: inline-block;
+        &.selected {
+          background: #eee;
+        }
+        label {
           margin-left: 5px;
-          background: #999;
-          width: 16px;
-          height: 16px;
-          vertical-align: middle;
-          color: #fff;
-          border-radius: 50%;
-          line-height: 18px;
+          &:before { content: "[" }
+          &:after { content: "]" }
         }
       }
     }`
@@ -40,7 +36,11 @@ class Tabs extends Jinkela {
 
 class Tab extends Jinkela {
   get template () {
-    return `<li on-click="{click}"><span>{name}</span><i>{count}</i></li>`
+    return `
+    <li on-click="{click}">
+      <span>{name}</span>
+      <label>{count}</label>
+    </li>`
   }
 
   init () {

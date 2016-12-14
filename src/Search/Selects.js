@@ -27,6 +27,9 @@ class Selects extends Jinkela {
             flex: 1;
             padding: 0 15px;
           }
+          &.selected {
+            color: #19d4ae;
+          }
         }
       }
     }`

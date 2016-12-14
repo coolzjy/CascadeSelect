@@ -8,7 +8,7 @@ class Panel extends Jinkela {
 
   get template () {
     return `
-    <div>
+    <div on-item-remove="{click}">
       <div>
         <jkl-tabs types="{_types}"></jkl-tabs>
         <div jinkela-clear on-click="{clear}">清除全部</div>
@@ -24,10 +24,42 @@ class Panel extends Jinkela {
       > div {
         display: flex;
         [jinkela-clear] {
+          visibility: hidden;
           cursor: pointer;
           width: 80px;
+          transition: color .3s;
+          &:hover {
+            color: #03a9f4;
+          }
         }
       }
+      &.edit-mode [jinkela-tag] {
+        animation: shake .2s infinite;
+        position: relative;
+        cursor: pointer;
+        &:after {
+          content: 'x';
+          position: absolute;
+          right: -4px;
+          top: -4px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          line-height: 12px;
+          text-align: center;
+          background: #17bf9d;
+        }
+      }
+      &.edit-mode [jinkela-clear] {
+        visibility: visible;
+      } 
+    }
+    @keyframes shake {
+      0 { transform: rotate(0) }
+      25% { transform: rotate(-1deg) }
+      50% { transform: rotate(0) }
+      75% { transform: rotate(1deg) }
+      100% { transform: rotate(0) }
     }`
   }
 
@@ -45,8 +77,19 @@ class Panel extends Jinkela {
     }
   }
 
+  set modal (modal) {
+    this.element.classList.remove('edit-mode')
+  }
+
   clear () {
     this.element.dispatchEvent(new CustomEvent('item-clear', { bubbles: true }))
+  }
+
+  click (e) {
+    if (!this.element.classList.contains('edit-mode')) {
+      this.element.classList.add('edit-mode')
+      e.stopPropagation()
+    }
   }
 }
 

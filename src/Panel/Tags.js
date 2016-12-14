@@ -2,19 +2,19 @@ import Jinkela from 'jinkela'
 
 class Tags extends Jinkela {
   get tagName () { return 'ul' }
-  
+
   get styleSheet () {
     return `:scope {
       border-top: 1px solid #ddd;
       text-align: left;
-      max-height: 80px;
+      max-height: 91px;
       overflow-y: auto;
       > li {
         display: inline-block;
         height: 20px;
         background: #eee;
         padding: 0 10px;
-        margin: 3px;
+        margin: 5px;
         background-color: #19d4ae;
         border-radius: 2px;
         color: #fff;
@@ -38,10 +38,11 @@ class Tags extends Jinkela {
 
 class Tag extends Jinkela {
   get template () {
-    return `<li on-click="{click}">{n}</li>`
+    return `<li on-click="{click}" jinkela-tag>{n}</li>`
   }
 
-  click () {
+  click (e) {
+    e.stopPropagation()
     this.element.dispatchEvent(new CustomEvent('item-remove', {
       bubbles: true,
       detail: {

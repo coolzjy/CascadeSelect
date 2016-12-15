@@ -19,7 +19,6 @@ class Panel extends Jinkela {
 
   get styleSheet () {
     return `:scope {
-      border: 1px solid #ddd;
       visibility: hidden;
       > div {
         display: flex;
@@ -27,9 +26,15 @@ class Panel extends Jinkela {
           visibility: hidden;
           cursor: pointer;
           width: 80px;
-          transition: color .3s;
+          transition: color,opacity .3s;
+          border-bottom: none;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          background: #ef3b2e;
+          color: #fff;
+          opacity: .6;
           &:hover {
-            color: #03a9f4;
+            opacity: 1;
           }
         }
       }
@@ -52,7 +57,7 @@ class Panel extends Jinkela {
       }
       &.edit-mode [jinkela-clear] {
         visibility: visible;
-      } 
+      }
     }
     @keyframes shake {
       0 { transform: rotate(0) }

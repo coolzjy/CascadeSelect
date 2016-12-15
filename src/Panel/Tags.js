@@ -5,7 +5,7 @@ class Tags extends Jinkela {
 
   get styleSheet () {
     return `:scope {
-      border-top: 1px solid #ddd;
+      border: 1px solid #ddd;
       text-align: left;
       max-height: 91px;
       overflow-y: auto;

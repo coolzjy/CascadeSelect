@@ -7,12 +7,24 @@ class Tabs extends Jinkela {
     return `:scope {
       display: flex;
       flex: 1;
+      border-left: 1px solid #ddd;
       > li {
         padding: 0 10px;
         border-right: 1px solid #ddd;
+        border-top: 1px solid #ddd;
         position: relative;
+        background: #eee;
         &.selected {
-          background: #eee;
+          background: #fff;
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            width: 100%;
+            height: 1px;
+            background: #fff;
+            left: 0;
+          }
         }
         &:hover > i { display: block }
         > i {

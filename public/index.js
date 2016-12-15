@@ -775,9 +775,15 @@ class Tabs extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
           }
         }
         label {
-          margin-left: 5px;
-          &:before { content: "[" }
-          &:after { content: "]" }
+          display: inline-block;
+          background: #03A9F4;
+          width: 16px;
+          height: 16px;
+          text-align: center;
+          line-height: 18px;
+          color: #fff;
+          border-radius: 50%;
+          transform: scale(.7);
         }
       }
     }`

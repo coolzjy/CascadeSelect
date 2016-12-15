@@ -70,19 +70,7 @@ class Component extends Jinkela {
     }
 
     // prepare data
-    data.forEach(raw => {
-      raw.flat = []
-      raw.struct.forEach((title, level) => {
-        for (let id in raw.data[level]) {
-          raw.data[level][id].forEach(item => {
-            item.level = level
-            item.title = title
-            item.hasChild = raw.data[level + 1] && raw.data[level + 1][item.i]
-            raw.flat.push(item)
-          })
-        }
-      })
-    })
+    prepare(data)
 
     this._data = data
     this.types = data.map(d => d.name)
@@ -113,10 +101,16 @@ class Component extends Jinkela {
     this.element.addEventListener('item-select', this.addSelect.bind(this))
     this.element.addEventListener('item-remove', this.removeSelect.bind(this))
     this.element.addEventListener('item-clear', this.clearSelect.bind(this))
+    this.element.addEventListener('tab-clear', this.clearTab.bind(this))
   }
 
   typeChange (e) {
     this.currentType = e.detail
+    this.refreshCurrentSelected()
+  }
+
+  clearTab (e) {
+    this.selected = this.selected.filter(s => s.type !== e.detail)
     this.refreshCurrentSelected()
   }
 
@@ -152,6 +146,22 @@ class Component extends Jinkela {
 
 function isEqual (a, b) {
   return a.i === b.i && a.type === b.type && a.level === b.level
+}
+
+function prepare (data) {
+  data.forEach(raw => {
+    raw.flat = []
+    raw.struct.forEach((title, level) => {
+      for (let id in raw.data[level]) {
+        raw.data[level][id].forEach(item => {
+          item.level = level
+          item.title = title
+          item.hasChild = raw.data[level + 1] && raw.data[level + 1][item.i]
+          raw.flat.push(item)
+        })
+      }
+    })
+  })
 }
 
 module.exports = Component

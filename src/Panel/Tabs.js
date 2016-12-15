@@ -10,8 +10,31 @@ class Tabs extends Jinkela {
       > li {
         padding: 0 10px;
         border-right: 1px solid #ddd;
+        position: relative;
         &.selected {
           background: #eee;
+        }
+        &:hover > i { display: block }
+        > i {
+          display: none;
+          content: 'x';
+          font-style: normal;
+          position: absolute;
+          z-index: 9;
+          right: -4px;
+          top: -4px;
+          width: 12px;
+          height: 12px;
+          text-align: center;
+          line-height: 12px;
+          background: #ccc;
+          color: #eee;
+          border-radius: 50%;
+          cursor: pointer;
+          &:hover {
+            background: #aaa;
+            color: #fff;
+          }
         }
         label {
           margin-left: 5px;
@@ -40,6 +63,7 @@ class Tab extends Jinkela {
     <li on-click="{click}">
       <span>{name}</span>
       <label>{count}</label>
+      <i on-click="{clear}">x</i>
     </li>`
   }
 
@@ -50,6 +74,13 @@ class Tab extends Jinkela {
 
   click () {
     this.element.dispatchEvent(new CustomEvent('type-change', {
+      bubbles: true,
+      detail: this.name
+    }))
+  }
+
+  clear () {
+    this.element.dispatchEvent(new CustomEvent('tab-clear', {
       bubbles: true,
       detail: this.name
     }))

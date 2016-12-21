@@ -25,7 +25,7 @@
     })
   }
 
-  const GROUP_COUNT = rd(1, 5)
+  const GROUP_COUNT = rd(2, 5)
 
   const data = Array.from(Array(GROUP_COUNT)).map(() => {
     return {

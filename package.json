@@ -1,6 +1,6 @@
 {
   "name": "cascading-select",
-  "version": "0.3.2",
+  "version": "1.0.0-beta.2",
   "description": "Cascading Select Component with ES6",
   "main": "src/index.js",
   "scripts": {
@@ -9,8 +9,7 @@
     "postbuild": "buble 'lib/index.js' > 'lib/index.es5.js' && rm -rf public && mkdir public && cp -rf lib/** mock public",
     "dev": "webpack-dev-server --open --inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "npm run build",
-    "postpublish": "faas testing"
+    "prepublish": "npm run build"
   },
   "author": "ppq1991@gmail.com",
   "license": "MIT",

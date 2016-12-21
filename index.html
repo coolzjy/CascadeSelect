@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>demo</title>
+  <style>
+    body, html {
+      height: 100%;
+    }
+  </style>
+<script type="text/javascript" src="index.js"></script></head>
+<body>
+  <div id="app"></div>
+  <script src="mock/seed.js"></script>
+  <script>
+    new CascadingSelect({ data: seed }).to(document.getElementById('app'))
+  </script>
+</body>
+</html>

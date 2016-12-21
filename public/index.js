@@ -740,6 +740,7 @@ class Tabs extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
         border-top: 1px solid #ddd;
         position: relative;
         background: #eee;
+        white-space: nowrap;
         &.selected {
           background: #fff;
           &::after {
@@ -1008,12 +1009,12 @@ class Selects extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
       this.element.innerHTML = ''
       this._ref = []
     } else {
-      for (let i = index; i < this.data.struct.length; i++) {
-        if (this._ref[i]) {
-          this._ref[i].element.remove()
+      this._ref.forEach((ref, i) => {
+        if (ref && i >= index) {
+          ref.element.remove()
           delete this._ref[i]
         }
-      }
+      })
     }
   }
 }

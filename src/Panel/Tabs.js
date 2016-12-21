@@ -14,6 +14,7 @@ class Tabs extends Jinkela {
         border-top: 1px solid #ddd;
         position: relative;
         background: #eee;
+        white-space: nowrap;
         &.selected {
           background: #fff;
           &::after {

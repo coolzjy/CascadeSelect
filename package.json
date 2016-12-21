@@ -6,11 +6,11 @@
   "scripts": {
     "prebuild": "rm -rf lib",
     "build": "webpack --progress --color",
-    "postbuild": "buble 'lib/index.js' > 'lib/index.es5.js'",
+    "postbuild": "buble 'lib/index.js' > 'lib/index.es5.js' && rm -rf public && mkdir public && cp -rf lib/** mock public",
     "dev": "webpack-dev-server --open --inline",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build",
-    "postpublish": "rm -rf public && mkdir public && cp -rf lib/** mock public && faas testing"
+    "postpublish": "faas testing"
   },
   "author": "ppq1991@gmail.com",
   "license": "MIT",

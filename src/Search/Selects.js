@@ -99,12 +99,12 @@ class Selects extends Jinkela {
       this.element.innerHTML = ''
       this._ref = []
     } else {
-      for (let i = index; i < this.data.struct.length; i++) {
-        if (this._ref[i]) {
-          this._ref[i].element.remove()
+      this._ref.forEach((ref, i) => {
+        if (ref && i >= index) {
+          ref.element.remove()
           delete this._ref[i]
         }
-      }
+      })
     }
   }
 }

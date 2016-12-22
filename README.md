@@ -1,6 +1,6 @@
 # CascadingSelect
 
-a cascading dropdown list
+a cascading dropdown list, [demo page](https://ppq1991.github.io/CascadeSelect/).
 
 ### basic usage
 

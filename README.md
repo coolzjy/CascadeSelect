@@ -28,7 +28,7 @@ npm i cascading-select
 const CascadingSelect = require('cascading-select')
 ```
 
-##### quick start
+### quick start
 
 ```javascript
 const data = [/* data */]
@@ -40,7 +40,7 @@ select.onChange = arr => { console.log(arr) }
 console.log(select.selected)
 ```
 
-###### data struct
+### data struct
 
 run [seed.js](./mock/seed.js) to generate test data (browser / nodejs)
 
@@ -63,3 +63,7 @@ or directly see [demo page](https://ppq1991.github.io/CascadeSelect/) , this pag
 ]
 
 ```
+
+### documention
+
+todo

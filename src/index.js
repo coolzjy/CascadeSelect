@@ -131,6 +131,8 @@ class Component extends Jinkela {
   clearSelect () {
     this.selected = []
     this.currentSelected = []
+    
+    this.lastSelectCount = 0
     this.onChange && this.onChange(this.selected)
   }
 
@@ -142,6 +144,7 @@ class Component extends Jinkela {
     this.currentSelected = this.selected.filter(s => s.type === this.currentType)
 
     // trigger onChange api when select array change
+    if (this.lastSelectCount === undefined) { this.lastSelectCount = 0 }
     if (this.lastSelectCount !== this.selected.length) {
       this.lastSelectCount = this.selected.length
       this.onChange && this.onChange(this.selected)

@@ -1202,6 +1202,8 @@ var Component = (function (superclass) {
   Component.prototype.clearSelect = function clearSelect () {
     this.selected = []
     this.currentSelected = []
+    
+    this.lastSelectCount = 0
     this.onChange && this.onChange(this.selected)
   };
 
@@ -1215,6 +1217,7 @@ var Component = (function (superclass) {
     this.currentSelected = this.selected.filter(function (s) { return s.type === this$1.currentType; })
 
     // trigger onChange api when select array change
+    if (this.lastSelectCount === undefined) { this.lastSelectCount = 0 }
     if (this.lastSelectCount !== this.selected.length) {
       this.lastSelectCount = this.selected.length
       this.onChange && this.onChange(this.selected)

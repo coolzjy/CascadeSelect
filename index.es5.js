@@ -1202,6 +1202,7 @@ var Component = (function (superclass) {
   Component.prototype.clearSelect = function clearSelect () {
     this.selected = []
     this.currentSelected = []
+    this.onChange && this.onChange(this.selected)
   };
 
   Component.prototype.containsSelect = function containsSelect (a) {
@@ -1212,6 +1213,12 @@ var Component = (function (superclass) {
     var this$1 = this;
 
     this.currentSelected = this.selected.filter(function (s) { return s.type === this$1.currentType; })
+
+    // trigger onChange api when select array change
+    if (this.lastSelectCount !== this.selected.length) {
+      this.lastSelectCount = this.selected.length
+      this.onChange && this.onChange(this.selected)
+    }
   };
 
   Object.defineProperties( Component.prototype, prototypeAccessors );

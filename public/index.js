@@ -1255,6 +1255,7 @@ class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
   clearSelect () {
     this.selected = []
     this.currentSelected = []
+    this.onChange && this.onChange(this.selected)
   }
 
   containsSelect (a) {
@@ -1263,6 +1264,12 @@ class Component extends __WEBPACK_IMPORTED_MODULE_0_jinkela___default.a {
 
   refreshCurrentSelected () {
     this.currentSelected = this.selected.filter(s => s.type === this.currentType)
+
+    // trigger onChange api when select array change
+    if (this.lastSelectCount !== this.selected.length) {
+      this.lastSelectCount = this.selected.length
+      this.onChange && this.onChange(this.selected)
+    }
   }
 }
 

@@ -43,16 +43,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 
-/******/ 	// identity function for calling harmory imports with the correct context
+/******/ 	// identity function for calling harmony imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
 
-/******/ 	// define getter function for harmory exports
+/******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		Object.defineProperty(exports, name, {
-/******/ 			configurable: false,
-/******/ 			enumerable: true,
-/******/ 			get: getter
-/******/ 		});
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
 /******/ 	};
 
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -71,12 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 /**/ void function(scope) {
 /**/
@@ -90,7 +92,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /**/   }); }
 /**/
 /**/   // AMD, wrap a 'String' to avoid warn of fucking webpack
-/**/   if (String("function") === 'function' && !!__webpack_require__(5)) { return scope(__webpack_require__(4)); }
+/**/   if (String("function") === 'function' && !!__webpack_require__(6)) { return scope(__webpack_require__(5)); }
 /**/
 /**/   // Global
 /**/   scope(function(name, dependencies, factory) {
@@ -311,41 +313,88 @@ Object.defineProperty(Jinkela, 'from', {
     }
   }
 });
-Jinkela.cssPreprocessor = function(styleSheet) {
-  // Remove comments
-  styleSheet = styleSheet.replace(/\/\*[\s\S]*?\*\//g, '');
-  // Store special blocks
-  var stringStorage = [];
-  var atBlockStorage = [];
-  styleSheet = styleSheet.replace(/(["'])([\s\S]*?)(\1)/g, function($0) {
-    return '<string>' + stringStorage.push($0) + '<\/string>';
-  }).replace(/@[^{}]+\{([^{}]+\{[^{}]*\})*\s*\}/g, function($0) {
-    return '<atBlock>' + atBlockStorage.push($0) + '<\/atBlock>';
-  });
-  // Flatten
-  var tmp;
-  var engin = /(([^{};]+)\{[^{}]*?)([^{};]+)(\{[^{}]*?\})/;
-  while (tmp !== styleSheet) {
-    styleSheet = (tmp = styleSheet).replace(engin, function($0, $1, $2, $3, $4) {
-      var outer = $2.split(/,/g);
-      var inner = $3.split(/,/g);
-      var mixed = [];
-      for (var i = 0; i < outer.length; i++) {
-        for (var j = 0; j < inner.length; j++) {
-          mixed.push(outer[i] + ' ' + inner[j] + $4);
-        }
-      }
-      return mixed.join('') + $1;
+Jinkela.cssPreprocessor = function (styleSheet) {
+  // remove comments
+  styleSheet = styleSheet.replace(/(\/\/.+)|(\/\*[\s\S]*?\*\/)|((['"])(?:\\\4|.)*?\4)/g,
+    function ($0, lineComment, blockComment, quotedString) {
+      return quotedString || '';
     });
+  /*
+  TOKEN = ((['"])(?:\\\4|.)*?\4)    # quoted string
+        | ({)                       # block start
+        | (})                       # block end
+        | (;)                       # property end
+        | ((@[^{]+)\{)              # at block start
+        | (.)                       # other character
+  */
+  var tokenize = /((['"])(?:\\\2|.)*?\2)|({)|(})|(;)|((@[^{]+)\{)|(.)/g;
+  var gen = [];
+  var startPos = 0;
+  var selectorStack = [ [ '' ] ];
+  var propertyStack = [];
+  var properties = [];
+  var inAtBlock = 0;
+  for (var match; (match = tokenize.exec(styleSheet));) {
+    var warn = function (message) {
+      var parsed = styleSheet.slice(0, match.index + 1);
+      var ch = parsed.match(/.*$/)[0].length;
+      var line = parsed.length - parsed.replace(/\n/g, '').length + 1;
+      console.warn(message + ' at line ' + line + ', column ' + ch + '\n' + parsed); // eslint-disable-line
+    };
+    switch (true) {
+      // block start
+      case match[3] !== void 0:
+        propertyStack.push(properties);
+        properties = [];
+        if (inAtBlock > 0) { inAtBlock++; }
+        var outer = selectorStack[selectorStack.length - 1];
+        var inner = styleSheet.slice(startPos, match.index).replace(/^\s+|\s+$/g, '').split(/\s*,\s*/g);
+        var mixed = [];
+        for (var i = 0; i < outer.length; i++) {
+          for (var j = 0; j < inner.length; j++) {
+            mixed.push((outer[i] + ' ' + inner[j]).replace(/\s+&/g, '').replace(/^\s+|\s+$/g, ''));
+          }
+        }
+        selectorStack.push(mixed);
+        startPos = match.index + 1;
+        break;
+      // block end
+      case match[4] !== void 0:
+        if (selectorStack.length === 1) {
+          warn('unexpected block end');
+          return styleSheet;
+        }
+        properties.push(styleSheet.slice(startPos, match.index));
+        var selector = selectorStack.pop();
+        if (inAtBlock > 0 && --inAtBlock === 0) {
+          gen.push('}', '\n');
+        } else {
+          gen.push(selector.join(', '), '{', properties.join('\n'), '}', '\n');
+        }
+        properties = propertyStack.pop();
+        startPos = match.index + 1;
+        break;
+      // property end
+      case match[5] !== void 0:
+        properties.push(styleSheet.slice(startPos, match.index + 1));
+        startPos = match.index + 1;
+        break;
+      // at block start
+      case match[6] !== void 0:
+        if (selectorStack.length > 1) {
+          warn('unexpected @ block');
+          return styleSheet;
+        }
+        propertyStack.push(properties);
+        properties = [];
+        inAtBlock++;
+        gen.push(match[7], '{', '\n');
+        selectorStack.push([ '' ]);
+        startPos = match.index + match[6].length + 1;
+        break;
+    }
   }
-  styleSheet = styleSheet.replace(/\s+&/g, '');
-  // Reset special blocks
-  styleSheet = styleSheet.replace(/<atBlock>(\d+)<\/atBlock>/g, function($0, $1) {
-    return atBlockStorage[$1 - 1];
-  }).replace(/<string>(\d+)<\/string>/g, function($0, $1) {
-    return stringStorage[$1 - 1];
-  });
-  return styleSheet;
+  return gen.join('');
 };
 Jinkela.register(/^if(-not)?$/, function(that, node, ownerElement) {
   if (ownerElement.component) { ownerElement = ownerElement.component.element; }
@@ -468,11 +517,42 @@ Jinkela.register('ref', function(that, node, ownerElement) {
 /**/ });
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
+
+module.exports = function(originalModule) {
+	if(!originalModule.webpackPolyfill) {
+		var module = Object.create(originalModule);
+		// module.parent = undefined by default
+		if(!module.children) { module.children = []; }
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		Object.defineProperty(module, "exports", {
+			enumerable: true,
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
@@ -539,18 +619,18 @@ var Item = (function (superclass) {
 }(__WEBPACK_IMPORTED_MODULE_0_jinkela___default.a));
 
 module.exports = Dropdown
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Tabs__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Tabs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__Tabs__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Tags__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Tags___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__Tags__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Tabs__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Tags__ = __webpack_require__(8);
 
 
 
@@ -566,8 +646,8 @@ var Panel = (function (superclass) {
 
   var prototypeAccessors = { Tabs: {},Tags: {},template: {},styleSheet: {},tags: {},modal: {} };
 
-  prototypeAccessors.Tabs.get = function () { return __WEBPACK_IMPORTED_MODULE_1__Tabs___default.a };
-  prototypeAccessors.Tags.get = function () { return __WEBPACK_IMPORTED_MODULE_2__Tags___default.a };
+  prototypeAccessors.Tabs.get = function () { return __WEBPACK_IMPORTED_MODULE_1__Tabs__["default"] };
+  prototypeAccessors.Tags.get = function () { return __WEBPACK_IMPORTED_MODULE_2__Tags__["default"] };
 
   prototypeAccessors.template.get = function () {
     return "\n    <div on-item-remove=\"{click}\">\n      <div>\n        <jkl-tabs types=\"{_types}\"></jkl-tabs>\n        <div jinkela-clear on-click=\"{clear}\">清除全部</div>\n      </div>\n      <jkl-tags data=\"{_tags}\"></jkl-tags>\n    </div>"
@@ -615,12 +695,14 @@ var Panel = (function (superclass) {
 
 module.exports = Panel
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
@@ -636,7 +718,7 @@ var Search = (function (superclass) {
 
   var prototypeAccessors = { Selects: {},template: {},styleSheet: {},data: {} };
 
-  prototypeAccessors.Selects.get = function () { return __webpack_require__(8) };
+  prototypeAccessors.Selects.get = function () { return __webpack_require__(9) };
 
   prototypeAccessors.template.get = function () {
     return "\n    <div>\n      <input type=\"search\" on-input=\"{input}\" on-click=\"{click}\" />\n      <jkl-selects data=\"{_data}\" flat=\"{_flat}\" keyword=\"{keyword}\" visible=\"{visible}\" selected=\"{selected}\"></jkl-selects>\n    </div>"
@@ -670,28 +752,32 @@ var Search = (function (superclass) {
 }(__WEBPACK_IMPORTED_MODULE_0_jinkela___default.a));
 
 module.exports = Search
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-module.exports = function() { throw new Error("define cannot be used indirect"); };
-
-
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+module.exports = function() {
+	throw new Error("define cannot be used indirect");
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
+module.exports = __webpack_amd_options__;
 
 /* WEBPACK VAR INJECTION */}.call(exports, {}))
 
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* WEBPACK VAR INJECTION */(function(module) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
 
@@ -771,13 +857,14 @@ var Tab = (function (superclass) {
 
 module.exports = Tabs
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
+/* WEBPACK VAR INJECTION */(function(module) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
 
@@ -844,12 +931,14 @@ var Tag = (function (superclass) {
 
 module.exports = Tags
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
@@ -1093,12 +1182,14 @@ var Item = (function (superclass) {
 
 module.exports = Selects
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jinkela___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jinkela__);
 
@@ -1114,9 +1205,9 @@ var Component = (function (superclass) {
 
   var prototypeAccessors = { Dropdown: {},Search: {},Panel: {},template: {},styleSheet: {},data: {},types: {},currentType: {} };
 
-  prototypeAccessors.Dropdown.get = function () { return __webpack_require__(1) };
-  prototypeAccessors.Search.get = function () { return __webpack_require__(3) };
-  prototypeAccessors.Panel.get = function () { return __webpack_require__(2) };
+  prototypeAccessors.Dropdown.get = function () { return __webpack_require__(2) };
+  prototypeAccessors.Search.get = function () { return __webpack_require__(4) };
+  prototypeAccessors.Panel.get = function () { return __webpack_require__(3) };
 
   prototypeAccessors.template.get = function () {
     return "\n    <div>\n      <div jinkela-search>\n        <jkl-dropdown types=\"{_types}\" current=\"{_currentType}\"></jkl-dropdown>\n        <jkl-search data=\"{currentModel}\" visible=\"{modal}\" selected=\"{currentSelected}\"></jkl-search>\n      </div>\n      <div jinkela-panel>\n        <jkl-panel types=\"{_types}\" current=\"{_currentType}\" tags=\"{currentSelected}\" selected=\"{selected}\" modal=\"{modal}\"></jkl-panel>\n      </div>\n    </div>"
@@ -1202,7 +1293,7 @@ var Component = (function (superclass) {
   Component.prototype.clearSelect = function clearSelect () {
     this.selected = []
     this.currentSelected = []
-    
+
     this.lastSelectCount = 0
     this.onChange && this.onChange(this.selected)
   };
@@ -1249,9 +1340,10 @@ function prepare (data) {
   })
 }
 
-module.exports = Component
+module.exports
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)(module)))
 
-/***/ }
+/***/ })
 /******/ ]);
 });

@@ -1,4 +1,4 @@
-import Jinkela from 'jinkela'
+var Jinkela = require('jinkela')
 
 class Component extends Jinkela {
   // register components
@@ -94,12 +94,18 @@ class Component extends Jinkela {
 
   init () {
     this.selected = []
-    document.body.addEventListener('click', () => { this.modal = false })
+    this.currentLevel = {}
+    this.hide = this.hide.bind(this)
+    document.body.addEventListener('click', this.hide)
     this.element.addEventListener('type-change', this.typeChange.bind(this))
     this.element.addEventListener('item-select', this.addSelect.bind(this))
     this.element.addEventListener('item-remove', this.removeSelect.bind(this))
     this.element.addEventListener('item-clear', this.clearSelect.bind(this))
     this.element.addEventListener('tab-clear', this.clearTab.bind(this))
+  }
+
+  hide () {
+    this.modal = false
   }
 
   typeChange (e) {
@@ -115,6 +121,11 @@ class Component extends Jinkela {
   addSelect (e) {
     const item = e.detail
     item.type = this.currentType
+
+    if (item.restrict) {
+      this.currentLevel[item.type] = item.level
+    }
+
     if (!this.containsSelect(item)) {
       this.selected.push(item)
       this.refreshCurrentSelected()
@@ -131,7 +142,7 @@ class Component extends Jinkela {
   clearSelect () {
     this.selected = []
     this.currentSelected = []
-    
+
     this.lastSelectCount = 0
     this.onChange && this.onChange(this.selected)
   }
@@ -141,6 +152,11 @@ class Component extends Jinkela {
   }
 
   refreshCurrentSelected () {
+    this.selected.forEach(s => {
+      if (this.currentLevel[s.type] !== undefined && s.restrict) {
+        s.isCurrentLevel = this.currentLevel[s.type] === s.level
+      }
+    })
     this.currentSelected = this.selected.filter(s => s.type === this.currentType)
 
     // trigger onChange api when select array change
@@ -149,6 +165,11 @@ class Component extends Jinkela {
       this.lastSelectCount = this.selected.length
       this.onChange && this.onChange(this.selected)
     }
+  }
+
+  destroy () {
+    document.body.removeEventListener('click', this.hide)
+    this.element.parentNode.removeChild(this.element)  
   }
 }
 
@@ -165,6 +186,7 @@ function prepare (data) {
           item.level = level
           item.title = title
           item.hasChild = raw.data[level + 1] && raw.data[level + 1][item.i]
+          if (raw.restrict) item.restrict = true
           raw.flat.push(item)
         })
       }

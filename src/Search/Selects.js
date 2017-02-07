@@ -1,4 +1,4 @@
-import Jinkela from 'jinkela'
+var Jinkela = require('jinkela')
 
 class Selects extends Jinkela {
   get tagName () { return 'div' }
@@ -180,7 +180,8 @@ class Item extends Jinkela {
       detail: {
         n: this.n,
         i: this.i,
-        level: this.level
+        level: this.level,
+        restrict: this.restrict
       }
     }))
   }

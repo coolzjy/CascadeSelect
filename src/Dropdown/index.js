@@ -1,4 +1,4 @@
-import Jinkela from 'jinkela'
+var Jinkela = require('jinkela')
 
 class Dropdown extends Jinkela {
   get template () {

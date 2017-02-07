@@ -1,4 +1,4 @@
-import Jinkela from 'jinkela'
+var Jinkela = require('jinkela')
 
 class Search extends Jinkela {
   get Selects () { return require('./Selects') }
@@ -17,7 +17,7 @@ class Search extends Jinkela {
         border: none;
         outline: none;
         padding: 0 5px;
-      } 
+      }
     }`
   }
 

@@ -13,6 +13,7 @@
   <div id="app"></div>
   <script src="mock/seed.js"></script>
   <script>
+    seed[0].restrict = true
     const ref = new CascadingSelect({ data: seed }).to(document.getElementById('app'))
     ref.onChange = arr => { console.log(arr) }
   </script>

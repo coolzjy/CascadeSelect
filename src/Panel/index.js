@@ -1,6 +1,6 @@
-import Jinkela from 'jinkela'
-import Tabs from './Tabs'
-import Tags from './Tags'
+var Jinkela = require('jinkela')
+var Tabs = require('./Tabs')
+var Tags = require('./Tags')
 
 class Panel extends Jinkela {
   get Tabs () { return Tabs }
@@ -52,7 +52,11 @@ class Panel extends Jinkela {
           border-radius: 50%;
           line-height: 12px;
           text-align: center;
-          background: #17bf9d;
+          background: #eee;
+        }
+
+        &.current-level:after {
+          background: #19d4ae;
         }
       }
       &.edit-mode [jinkela-clear] {
@@ -78,7 +82,8 @@ class Panel extends Jinkela {
           count: this.selected.filter(s => s.type === name).length
         }
       })
-      this.element.style.visibility = this.selected && this.selected.length ? 'visible' : 'hidden'
+      this.element.style.visibility = this.selected && this.selected.length
+        ? 'visible' : 'hidden'
     }
   }
 

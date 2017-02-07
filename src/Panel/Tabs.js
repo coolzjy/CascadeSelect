@@ -1,4 +1,4 @@
-import Jinkela from 'jinkela'
+var Jinkela = require('jinkela')
 
 class Tabs extends Jinkela {
   get tagName () { return 'ul' }

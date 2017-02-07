@@ -16,8 +16,8 @@
   "devDependencies": {
     "buble": "^0.15.1",
     "html-webpack-plugin": "^2.24.1",
-    "webpack": "^2.1.0-beta.27",
-    "webpack-dev-server": "^2.1.0-beta.12"
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.2.0"
   },
   "dependencies": {
     "jinkela": "^1.2.18"
